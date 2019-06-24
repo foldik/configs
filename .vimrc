@@ -33,12 +33,24 @@ Plug 'artur-shaik/vim-javacomplete2', {'for': ['java', 'jsp']} " Java
 Plug 'ncm2/ncm2-bufword'
 Plug 'ncm2/ncm2-path'
 
+Plug 'w0rp/ale'
+
 Plug 'chriskempson/base16-vim'
 
 " Initialize plugin system
 call plug#end()
 
 let base16colorspace=256
+
+" Linter
+let g:ale_sign_column_always = 1
+" only lint on save
+let g:ale_lint_on_text_changed = 'never'
+let g:ale_lint_on_save = 0
+let g:ale_lint_on_enter = 0
+let g:ale_rust_cargo_use_check = 1
+let g:ale_rust_cargo_check_all_targets = 1
+let g:ale_virtualtext_cursor = 0
 
 "=============================================
 " Editor
