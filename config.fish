@@ -1,4 +1,1 @@
-if status is-interactive
-and not set -q TMUX
-    exec ~/tmux/tmux
-end
+~/tmux/tmux attach -t default || ~/tmux/tmux new -s default
