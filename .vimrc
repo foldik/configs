@@ -8,32 +8,58 @@ filetype off
 call plug#begin('~/.vim/plugged')
 " On-demand loading
 Plug 'scrooloose/nerdtree'
+"Open NERDTree if no files specified
+autocmd StdinReadPre * let s:std_in=1
+autocmd VimEnter * if argc() == 0 && !exists("s:std_in") | NERDTree | endif
+
 Plug '/usr/local/opt/fzf'
 Plug 'junegunn/fzf.vim'
+if executable('fzf')
+  " <C-p> to search files
+  nnoremap <silent> <C-p> :FZF -m<cr>
+end
 
-Plug 'ncm2/ncm2'
-Plug 'roxma/nvim-yarp'
 
-" enable ncm2 for all buffers
-autocmd BufEnter * call ncm2#enable_for_buffer()
+Plug 'Shougo/deoplete.nvim', { 'do': ':UpdateRemotePlugins' }
+let g:deoplete#enable_at_startup = 1
+" use tab for completion
+inoremap <expr><tab> pumvisible() ? "\<c-n>" : "\<tab>"
 
-" IMPORTANT: :help Ncm2PopupOpen for more information
-set completeopt=noinsert,menuone,noselect
+" Polyglot loads language support on demand!
+Plug 'sheerun/vim-polyglot'
 
-" Completion sources 
-Plug 'slashmili/alchemist.vim' " Elixir
-Plug 'ncm2/ncm2-tern',  {'do': 'npm install'} " JS
-Plug 'ncm2/ncm2-racer' " Rust
-Plug 'ncm2/ncm2-cssomni' " Css
-Plug 'pbogut/ncm2-alchemist' " Elixir
-Plug 'ncm2/ncm2-jedi' " Python
-Plug 'ObserverOfTime/ncm2-jc2', {'for': ['java', 'jsp']} " Java
-Plug 'artur-shaik/vim-javacomplete2', {'for': ['java', 'jsp']} " Java
+Plug 'neomake/neomake'
+augroup localneomake
+  autocmd! BufWritePost * Neomake
+augroup END
+let g:neomake_markdown_enabled_makers = []
 
-Plug 'ncm2/ncm2-bufword'
-Plug 'ncm2/ncm2-path'
+let g:neomake_elixir_enabled_makers = ['mycredo']
+function! NeomakeCredoErrorType(entry)
+  if a:entry.type ==# 'F'      " Refactoring opportunities
+    let l:type = 'W'
+  elseif a:entry.type ==# 'D'  " Software design suggestions
+    let l:type = 'I'
+  elseif a:entry.type ==# 'W'  " Warnings
+    let l:type = 'W'
+  elseif a:entry.type ==# 'R'  " Readability suggestions
+    let l:type = 'I'
+  elseif a:entry.type ==# 'C'  " Convention violation
+    let l:type = 'W'
+  else
+    let l:type = 'M'           " Everything else is a message
+  endif
+  let a:entry.type = l:type
+endfunction
 
-Plug 'w0rp/ale'
+let g:neomake_elixir_mycredo_maker = {
+      \ 'exe': 'mix',
+      \ 'args': ['credo', 'list', '%:p', '--format=oneline'],
+      \ 'errorformat': '[%t] %. %f:%l:%c %m,[%t] %. %f:%l %m',
+      \ 'postprocess': function('NeomakeCredoErrorType')
+      \ }
+
+Plug 'slashmili/alchemist.vim'
 
 Plug 'chriskempson/base16-vim'
 
@@ -41,16 +67,6 @@ Plug 'chriskempson/base16-vim'
 call plug#end()
 
 let base16colorspace=256
-
-" Linter
-let g:ale_sign_column_always = 1
-" only lint on save
-let g:ale_lint_on_text_changed = 'never'
-let g:ale_lint_on_save = 0
-let g:ale_lint_on_enter = 0
-let g:ale_rust_cargo_use_check = 1
-let g:ale_rust_cargo_check_all_targets = 1
-let g:ale_virtualtext_cursor = 0
 
 "=============================================
 " Editor
@@ -70,3 +86,13 @@ set encoding=utf-8
 colorscheme base16-atelier-dune
 set termguicolors
 
+set hlsearch
+set incsearch
+set ignorecase
+set smartcase
+map <CR> :noh<CR>
+
+set cursorline
+set cursorcolumn
+
+set title
